@@ -1,69 +1,55 @@
-import React, { Component } from 'react';
-import logo from '../assets/holberton-logo.jpg';
+import React, { Component, Fragment } from 'react';
 import { StyleSheet, css } from 'aphrodite';
-import { AppContext } from '../App/AppContext';
+
+import AppContext from '../App/AppContext';
+
+import logo from '../assets/logo.jpg';
 
 class Header extends Component {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     const { user, logOut } = this.context;
 
     return (
-      <header className={css(styles.header)}>
-        <img className={css(styles.logo)} src={logo} alt='logo' />
-        <h1 className={css(styles.title)}>School dashboard</h1>
+      <Fragment>
+        <div className={css(styles.header)}>
+          <img src={logo} alt='Logo' className={css(styles.logo)}></img>
+          <h1 className={css(styles.heading)}>School Dashboard</h1>
+        </div>
         {user.isLoggedIn && (
-          <p id='logoutSection' className={css(styles.logoutSection)}>
-            Welcome <b>{`${user.email} `}</b>
-            <span onClick={logOut} className={css(styles.logoutSectionSpan)}>
-              (logout)
-            </span>
-          </p>
+          <div id='logoutSection'>
+            <p>
+              Welcome <strong>{user.email} </strong>
+              <em onClick={logOut} className={css(styles.logout)}>
+                (logout)
+              </em>
+            </p>
+          </div>
         )}
-      </header>
+      </Fragment>
     );
   }
 }
 
-const screenSize = {
-  small: '@media screen and (max-width: 900px)',
-};
-
 const styles = StyleSheet.create({
   header: {
+    borderBottom: '3px solid #e1345b',
+    height: '250px',
     display: 'flex',
-    color: '#e0344a',
-    alignItems: 'center',
-    borderBottom: 'thick solid #e0344a',
-    width: '100%',
-    position: 'fixed',
+    justifyContent: 'flex-start',
+    alignItems: 'center'
   },
   logo: {
-    width: '144px',
-    [screenSize.small]: {
-      width: '240px',
-    },
+    width: '200px',
+    height: '200px'
   },
-  title: {
-    margin: 0,
-    [screenSize.small]: {
-      fontSize: '40px',
-    },
+  heading: {
+    display: 'inline',
+    position: 'relative',
+    color: '#e1345b'
   },
-  logoutSection: {
-    color: 'black',
-    position: 'absolute',
-    right: 0,
-    paddingRight: '20px',
-    alignSelf: 'flex-end',
-  },
-  logoutSectionSpan: {
-    fontStyle: 'italic',
-    cursor: 'pointer',
-  },
+  logout: {
+    cursor: 'pointer'
+  }
 });
 
 Header.contextType = AppContext;

@@ -1,164 +1,115 @@
 import courseReducer from './courseReducer';
-import {
-  FETCH_COURSE_SUCCESS,
-  SELECT_COURSE,
-  UNSELECT_COURSE,
-} from '../actions/courseActionTypes';
 
-describe('courseReducer', function () {
-  it('Tests that the default state returns an empty arr', function () {
-    const state = courseReducer(undefined, {});
-    expect(state).toEqual([]);
+import { SELECT_COURSE, UNSELECT_COURSE, FETCH_COURSE_SUCCESS } from '../actions/courseActionTypes';
+
+describe('courseReducer', () => {
+  const initialState = {
+    courses: []
+  };
+
+  const courses = [
+    {
+      id: 1,
+      name: 'ES6',
+      credit: 60
+    },
+    {
+      id: 2,
+      name: 'Webpack',
+      credit: 20
+    },
+    {
+      id: 3,
+      name: 'React',
+      credit: 40
+    }
+  ];
+
+  test('default state returns empty array', () => {
+    const state = courseReducer();
+
+    expect(state).toEqual(initialState);
   });
 
-  it('FETCH_COURSE_SUCCESS', function () {
-    const action = {
+  test('state changes as expected when FETCH_COURSE_SUCCESS is passed', () => {
+    const state = courseReducer(initialState, {
       type: FETCH_COURSE_SUCCESS,
-      data: [
-        {
-          id: 1,
-          name: 'ES6',
-          credit: 60,
-        },
-        {
-          id: 2,
-          name: 'Webpack',
-          credit: 20,
-        },
-        {
-          id: 3,
-          name: 'React',
-          credit: 40,
-        },
-      ],
-    };
+      data: courses
+    });
 
-    const expectedData = [
-      {
-        id: 1,
-        name: 'ES6',
-        isSelected: false,
-        credit: 60,
-      },
-      {
-        id: 2,
-        name: 'Webpack',
-        isSelected: false,
-        credit: 20,
-      },
-      {
-        id: 3,
-        name: 'React',
-        isSelected: false,
-        credit: 40,
-      },
-    ];
+    expect(Object.keys(state).length).toBe(1);
+    expect(state).toHaveProperty('courses');
+    expect(Object.prototype.toString.call(state.courses)).toBe(
+      '[object Array]'
+    );
 
-    const state = courseReducer(undefined, action);
-    expect(state).toEqual(expectedData);
+    // Check each individual object
+    expect(state.courses[0]).toEqual({ ...courses[0], isSelected: false });
+    expect(state.courses[1]).toEqual({ ...courses[1], isSelected: false });
+    expect(state.courses[2]).toEqual({ ...courses[2], isSelected: false });
   });
 
-  it('SELECT_COURSE', function () {
-    const initialState = [
-      {
-        id: 1,
-        name: 'ES6',
-        isSelected: false,
-        credit: 60,
-      },
-      {
-        id: 2,
-        name: 'Webpack',
-        isSelected: false,
-        credit: 20,
-      },
-      {
-        id: 3,
-        name: 'React',
-        isSelected: false,
-        credit: 40,
-      },
-    ];
+  test('state changes as expected when SELECT_COURSE is passed', () => {
+    const index = 2;
 
-    const action = {
-      type: SELECT_COURSE,
-      index: 2,
-    };
+    // Get courses
+    let state = courseReducer(initialState, {
+      type: FETCH_COURSE_SUCCESS,
+      data: courses
+    });
 
-    const expectedData = [
-      {
-        id: 1,
-        name: 'ES6',
-        isSelected: false,
-        credit: 60,
-      },
-      {
-        id: 2,
-        name: 'Webpack',
-        isSelected: true,
-        credit: 20,
-      },
-      {
-        id: 3,
-        name: 'React',
-        isSelected: false,
-        credit: 40,
-      },
-    ];
+    // Select course
+    state = courseReducer(state, { type: SELECT_COURSE, index });
 
-    const state = courseReducer(initialState, action);
-    expect(state).toEqual(expectedData);
+    expect(Object.keys(state).length).toBe(1);
+    expect(state).toHaveProperty('courses');
+    expect(Object.prototype.toString.call(state.courses)).toBe(
+      '[object Array]'
+    );
+
+    // Expect only course with id of 2 to be selected
+    expect(state.courses[0]).toEqual({ ...courses[0], isSelected: false });
+    expect(state.courses[1]).toEqual({ ...courses[1], isSelected: true });
+    expect(state.courses[2]).toEqual({ ...courses[2], isSelected: false });
   });
 
-  it('UNSELECT_COURSE', function () {
-    const initialState = [
-      {
-        id: 1,
-        name: 'ES6',
-        isSelected: false,
-        credit: 60,
-      },
-      {
-        id: 2,
-        name: 'Webpack',
-        isSelected: true,
-        credit: 20,
-      },
-      {
-        id: 3,
-        name: 'React',
-        isSelected: false,
-        credit: 40,
-      },
-    ];
-
-    const action = {
-      type: UNSELECT_COURSE,
-      index: 2,
+  test('state changes as expected when UNSELECT_COURSE is passed', () => {
+    const index = 4;
+    const selectedCourse = {
+      id: 4,
+      name: 'GraphQL',
+      isSelected: true,
+      credit: 40
     };
 
-    const expectedData = [
-      {
-        id: 1,
-        name: 'ES6',
-        isSelected: false,
-        credit: 60,
-      },
-      {
-        id: 2,
-        name: 'Webpack',
-        isSelected: false,
-        credit: 20,
-      },
-      {
-        id: 3,
-        name: 'React',
-        isSelected: false,
-        credit: 40,
-      },
-    ];
+    // Get courses
+    let state = courseReducer(initialState, {
+      type: FETCH_COURSE_SUCCESS,
+      data: courses
+    });
 
-    const state = courseReducer(initialState, action);
-    expect(state).toEqual(expectedData);
+    // Unselect course
+    state = courseReducer(
+      {
+        ...state,
+        courses: [
+          ...state.courses,
+          { id: 4, name: 'GraphQL', isSelected: true, credit: 40 }
+        ]
+      },
+      { type: UNSELECT_COURSE, index }
+    );
+
+    expect(Object.keys(state).length).toBe(1);
+    expect(state).toHaveProperty('courses');
+    expect(Object.prototype.toString.call(state.courses)).toBe(
+      '[object Array]'
+    );
+
+    // Expect course with id of 2 to be unselected again
+    expect(state.courses[0]).toEqual({ ...courses[0], isSelected: false });
+    expect(state.courses[1]).toEqual({ ...courses[1], isSelected: false });
+    expect(state.courses[2]).toEqual({ ...courses[2], isSelected: false });
+    expect(state.courses[3]).toEqual({ ...selectedCourse, isSelected: false });
   });
 });

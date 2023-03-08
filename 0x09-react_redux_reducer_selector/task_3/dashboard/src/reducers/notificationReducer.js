@@ -1,52 +1,29 @@
-import {
-  FETCH_NOTIFICATIONS_SUCCESS,
-  MARK_AS_READ,
-  SET_TYPE_FILTER,
-} from '../actions/notificationActionTypes';
+import { MARK_AS_READ, SET_TYPE_FILTER, FETCH_NOTIFICATIONS_SUCCESS, NotificationTypeFilters } from '../actions/notificationActionTypes';
 
-export const initialNotificationState = {
+const initialState = {
   notifications: [],
-  filter: 'DEFAULT',
+  filter: 'DEFAULT'
 };
 
-const notificationReducer = (state = initialNotificationState, action) => {
+const notificationReducer = (state = initialState, action = {}) => {
   switch (action.type) {
-    /*
     case FETCH_NOTIFICATIONS_SUCCESS:
       return {
         ...state,
-        notifications: action.data.map((notification) => {
-          return {
-            ...notification,
-            isRead: false,
-          };
-        }),
+        notifications: action.data.map((notif) => ({ ...notif, isRead: false }))
       };
-      */
-
     case MARK_AS_READ:
-      return {
-        ...state,
-        notifications: state.notifications.map((notification) => {
-          const current = {
-            ...notification,
-          };
-          if (notification.id == action.index) current.isRead = true;
+      const notifications = state.notifications.map((notif) => {
+        if (notif.id === action.index) notif.isRead = true;
+        return notif;
+      });
 
-          return current;
-        }),
-      };
-
+      return { ...state, notifications };
     case SET_TYPE_FILTER:
-      return {
-        ...state,
-        filter: action.filter,
-      };
-
+      return { ...state, filter: NotificationTypeFilters[action.filter] };
     default:
-      break;
+      return state;
   }
-  return state;
 };
 
 export default notificationReducer;

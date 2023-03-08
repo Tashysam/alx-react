@@ -1,85 +1,183 @@
-import { shallow } from 'enzyme';
 import React from 'react';
-import App, { listNotificationsInitialState } from './App';
+import { shallow } from 'enzyme';
 import { StyleSheetTestUtils } from 'aphrodite';
-import { user, logOut, AppContext } from './AppContext';
 
-describe('<App />', () => {
-  beforeAll(() => {
+import App from './App';
+import Notifications from '../Notifications/Notifications';
+import Header from '../Header/Header';
+import Login from '../Login/Login';
+import Footer from '../Footer/Footer';
+import CourseList from '../CourseList/CourseList';
+
+describe('App', () => {
+  beforeEach(() => {
     StyleSheetTestUtils.suppressStyleInjection();
   });
-  afterAll(() => {
+
+  afterEach(() => {
     StyleSheetTestUtils.clearBufferAndResumeStyleInjection();
   });
 
-  it('render without crashing', () => {
+  test('renders without crashing', () => {
     const wrapper = shallow(<App />);
-    expect(wrapper.exists());
+
+    expect(wrapper.exists()).toBe(true);
   });
 
-  it('contain Notifications component', () => {
+  test('renders Notifications component', () => {
     const wrapper = shallow(<App />);
-    expect(wrapper.find('Notifications')).toHaveLength(1);
+    const notifs = wrapper.find(Notifications);
+
+    expect(notifs.length).toBe(1);
   });
 
-  it('contain Header component', () => {
+  test('renders Header component', () => {
     const wrapper = shallow(<App />);
-    expect(wrapper.find('Header')).toHaveLength(1);
+    const header = wrapper.find(Header);
+
+    expect(header.length).toBe(1);
   });
 
-  it('contain Login component', () => {
+  test('renders Login component', () => {
     const wrapper = shallow(<App />);
-    expect(wrapper.find('Login')).toHaveLength(1);
+    const login = wrapper.find(Login);
+
+    expect(login.length).toBe(1);
   });
 
-  it('contain Footer component', () => {
+  test('renders Footer component', () => {
     const wrapper = shallow(<App />);
-    expect(wrapper.find('Footer')).toHaveLength(1);
+    const footer = wrapper.find(Footer);
+
+    expect(footer.length).toBe(1);
   });
 
-  it('CourseList', () => {
+  test('course list not displayed by default', () => {
     const wrapper = shallow(<App />);
-    expect(wrapper.find('CourseList')).toHaveLength(0);
+    const courseList = wrapper.find(CourseList);
+
+    expect(courseList.length).toBe(0);
   });
 
-  it('logOut', () => {
-    const logOut = jest.fn(() => undefined);
-    const wrapper = shallow(<App logOut={logOut} />);
-    expect(wrapper.exists());
-    const alert = jest.spyOn(global, 'alert');
-    expect(alert);
-    expect(logOut);
-    jest.restoreAllMocks();
-  });
-
-  it('default state for displayDrawer is false', () => {
+  test('if logged in, course list is displayed and login form is not', () => {
     const wrapper = shallow(<App />);
-    expect(wrapper.state().displayDrawer).toEqual(false);
+    wrapper.setState({
+      ...wrapper.state(),
+      user: {
+        email: 'juno@domain.tld',
+        password: 'gecgecgec',
+        isLoggedIn: true
+      }
+    });
+
+    const login = wrapper.find(Login);
+    const courseList = wrapper.find(CourseList);
+
+    expect(login.length).toBe(0);
+    expect(courseList.length).toBe(1);
   });
 
-  it('displayDrawer toggle handleDisplayDrawer', () => {
+  test('logout keyboard shortcut works', () => {
+    const map = {};
+    window.addEventListener = jest.fn((ev, cb) => {
+      map[ev] = cb;
+    });
+
+    window.alert = jest.fn();
+
     const wrapper = shallow(<App />);
-    expect(wrapper.state().displayDrawer).toEqual(false);
-    const instance = wrapper.instance();
-    instance.handleDisplayDrawer();
-    expect(wrapper.state().displayDrawer).toEqual(true);
+    wrapper.setState({
+      ...wrapper.state(),
+      user: {
+        email: 'juno@domain.tld',
+        password: 'gecgecgec',
+        isLoggedIn: true
+      }
+    });
+
+    expect(wrapper.state().user).toHaveProperty('email', 'juno@domain.tld');
+    expect(wrapper.state().user).toHaveProperty('password', 'gecgecgec');
+    expect(wrapper.state().user).toHaveProperty('isLoggedIn', true);
+
+    map.keydown({ key: 'Control' });
+    map.keydown({ key: 'h' });
+
+    expect(wrapper.state().user).toHaveProperty('email', '');
+    expect(wrapper.state().user).toHaveProperty('password', '');
+    expect(wrapper.state().user).toHaveProperty('isLoggedIn', false);
+    expect(window.alert).toHaveBeenCalledWith('Logging you out');
   });
 
-  it('displayDrawer toggle handleDisplayDrawer and handleHideDrawer', () => {
+  describe('correctly handles displayDrawer state', () => {
+    test('defaults to false', () => {
+      const wrapper = shallow(<App />);
+
+      expect(wrapper.state()).toHaveProperty('displayDrawer', false);
+    });
+
+    test('handleDisplayDrawer and handleHideDrawer work as expected', () => {
+      const wrapper = shallow(<App />);
+
+      wrapper.instance().handleDisplayDrawer();
+      expect(wrapper.state()).toHaveProperty('displayDrawer', true);
+
+      wrapper.instance().handleHideDrawer();
+      expect(wrapper.state()).toHaveProperty('displayDrawer', false);
+    });
+  });
+
+  describe('login/logout work as expected', () => {
+    test('login correctly sets state', () => {
+      const wrapper = shallow(<App />);
+
+      expect(wrapper.state().user).toHaveProperty('email', '');
+      expect(wrapper.state().user).toHaveProperty('password', '');
+      expect(wrapper.state().user).toHaveProperty('isLoggedIn', false);
+
+      wrapper.instance().logIn('juno@domain.tld', 'gecgecgec');
+
+      expect(wrapper.state().user).toHaveProperty('email', 'juno@domain.tld');
+      expect(wrapper.state().user).toHaveProperty('password', 'gecgecgec');
+      expect(wrapper.state().user).toHaveProperty('isLoggedIn', true);
+    });
+
+    test('logout correctly sets state', () => {
+      const wrapper = shallow(<App />);
+      wrapper.setState({
+        ...wrapper.state(),
+        user: {
+          email: 'juno@domain.tld',
+          password: 'gecgecgec',
+          isLoggedIn: true
+        }
+      });
+
+      expect(wrapper.state().user).toHaveProperty('email', 'juno@domain.tld');
+      expect(wrapper.state().user).toHaveProperty('password', 'gecgecgec');
+      expect(wrapper.state().user).toHaveProperty('isLoggedIn', true);
+
+      wrapper.state().logOut();
+
+      expect(wrapper.state().user).toHaveProperty('email', '');
+      expect(wrapper.state().user).toHaveProperty('password', '');
+      expect(wrapper.state().user).toHaveProperty('isLoggedIn', false);
+    });
+  });
+
+  test('markNotificationAsRead works as expected', () => {
+    const testNotifs = [
+      { id: 1, type: 'default', value: 'test' },
+      { id: 2, type: 'urgent', value: 'test' }
+    ];
+
     const wrapper = shallow(<App />);
-    expect(wrapper.state().displayDrawer).toEqual(false);
-    wrapper.instance().handleDisplayDrawer();
-    expect(wrapper.state().displayDrawer).toEqual(true);
-    wrapper.instance().handleHideDrawer();
-    expect(wrapper.state().displayDrawer).toEqual(false);
-  });
+    wrapper.setState({ ...wrapper.state(), listNotifications: testNotifs });
 
-  it('<AppContext.Provider />', () => {
-    const wrapper = shallow(
-      <AppContext.Provider value={{ user, logOut }}>
-        <App />
-      </AppContext.Provider>
-    );
-    expect(wrapper.exists());
+    expect(wrapper.state().listNotifications.length).toBe(2);
+
+    wrapper.instance().markNotificationAsRead(1);
+
+    expect(wrapper.state().listNotifications.length).toBe(1);
+    expect(wrapper.state().listNotifications[0]).toHaveProperty('id', 2);
   });
 });

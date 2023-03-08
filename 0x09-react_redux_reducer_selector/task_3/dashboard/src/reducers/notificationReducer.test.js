@@ -1,181 +1,100 @@
-import notificationReducer, {
-  initialNotificationState,
-} from './notificationReducer';
+import notificationReducer from './notificationReducer';
 
 import {
-  FETCH_NOTIFICATIONS_SUCCESS,
   MARK_AS_READ,
   SET_TYPE_FILTER,
+  FETCH_NOTIFICATIONS_SUCCESS,
+  NotificationTypeFilters
 } from '../actions/notificationActionTypes';
 
-describe('courseReducer', function () {
-  it('initial state', function () {
-    const state = notificationReducer(undefined, {});
-    expect(state).toEqual(initialNotificationState);
+describe('notificationReducer', () => {
+  const initialState = {
+    notifications: [],
+    filter: 'DEFAULT'
+  };
+
+  const data = [
+    {
+      id: 1,
+      type: 'default',
+      value: 'New course available'
+    },
+    {
+      id: 2,
+      type: 'urgent',
+      value: 'New resume available'
+    },
+    {
+      id: 3,
+      type: 'urgent',
+      value: 'New data available'
+    }
+  ];
+
+  test('state does not change when no action is provided', () => {
+    const state = notificationReducer(initialState);
+
+    expect(state).toEqual(initialState);
   });
-  /*
-  it('FETCH_NOTIFICATIONS_SUCCESS', function () {
-    const action = {
+
+  test('state changes as expected when FETCH_NOTIFICATION_SUCCESS is passed', () => {
+    const state = notificationReducer(initialState, {
       type: FETCH_NOTIFICATIONS_SUCCESS,
-      data: [
-        {
-          id: 1,
-          type: 'default',
-          value: 'New course available',
-        },
-        {
-          id: 2,
-          type: 'urgent',
-          value: 'New resume available',
-        },
-        {
-          id: 3,
-          type: 'urgent',
-          value: 'New data available',
-        },
-      ],
-    };
+      data
+    });
 
-    const expectedData = {
-      filter: 'DEFAULT',
-      notifications: [
-        {
-          id: 1,
-          isRead: false,
-          type: 'default',
-          value: 'New course available',
-        },
-        {
-          id: 2,
-          isRead: false,
-          type: 'urgent',
-          value: 'New resume available',
-        },
-        {
-          id: 3,
-          isRead: false,
-          type: 'urgent',
-          value: 'New data available',
-        },
-      ],
-    };
+    // Check returned state
+    expect(state).toHaveProperty('filter', 'DEFAULT');
+    expect(Object.prototype.toString.call(state.notifications)).toBe(
+      '[object Array]'
+    );
 
-    const state = notificationReducer(undefined, action);
-    expect(state).toEqual(expectedData);
+    // Check notifications objects
+    expect(state.notifications[0]).toEqual({ ...data[0], isRead: false });
+    expect(state.notifications[1]).toEqual({ ...data[1], isRead: false });
+    expect(state.notifications[2]).toEqual({ ...data[2], isRead: false });
   });
-*/
-  it('MARK_AS_READ', function () {
-    const initialState = {
-      filter: 'DEFAULT',
-      notifications: [
-        {
-          id: 1,
-          isRead: false,
-          type: 'default',
-          value: 'New course available',
-        },
-        {
-          id: 2,
-          isRead: false,
-          type: 'urgent',
-          value: 'New resume available',
-        },
-        {
-          id: 3,
-          isRead: false,
-          type: 'urgent',
-          value: 'New data available',
-        },
-      ],
-    };
 
-    const action = {
-      type: MARK_AS_READ,
-      index: 2,
-    };
+  test('state changes as expected when MARK_AS_READ is passed', () => {
+    // Get notifications
+    let state = notificationReducer(initialState, {
+      type: FETCH_NOTIFICATIONS_SUCCESS,
+      data
+    });
 
-    const expectedData = {
-      filter: 'DEFAULT',
-      notifications: [
-        {
-          id: 1,
-          isRead: false,
-          type: 'default',
-          value: 'New course available',
-        },
-        {
-          id: 2,
-          isRead: true,
-          type: 'urgent',
-          value: 'New resume available',
-        },
-        {
-          id: 3,
-          isRead: false,
-          type: 'urgent',
-          value: 'New data available',
-        },
-      ],
-    };
+    state = notificationReducer(state, { type: MARK_AS_READ, index: 2 });
 
-    const state = notificationReducer(initialState, action);
-    expect(state).toEqual(expectedData);
+    // Check returned state
+    expect(state).toHaveProperty('filter', 'DEFAULT');
+    expect(Object.prototype.toString.call(state.notifications)).toBe(
+      '[object Array]'
+    );
+
+    // Check notifications objects
+    expect(state.notifications[0]).toEqual({ ...data[0], isRead: false });
+    expect(state.notifications[1]).toEqual({ ...data[1], isRead: true });
+    expect(state.notifications[2]).toEqual({ ...data[2], isRead: false });
   });
-  it('SET_TYPE_FILTER', function () {
-    const initialState = {
-      filter: 'DEFAULT',
-      notifications: [
-        {
-          id: 1,
-          isRead: false,
-          type: 'default',
-          value: 'New course available',
-        },
-        {
-          id: 2,
-          isRead: false,
-          type: 'urgent',
-          value: 'New resume available',
-        },
-        {
-          id: 3,
-          isRead: false,
-          type: 'urgent',
-          value: 'New data available',
-        },
-      ],
-    };
 
-    const action = {
+  test('state changes as expected when SET_TYPE_FILTER is passed', () => {
+    // Get notifications
+    let state = notificationReducer(initialState, {
+      type: FETCH_NOTIFICATIONS_SUCCESS,
+      data
+    });
+
+    state = notificationReducer(state, {
       type: SET_TYPE_FILTER,
-      filter: 'URGENT',
-    };
+      filter: NotificationTypeFilters.URGENT
+    });
 
-    const expectedData = {
-      filter: 'URGENT',
-      notifications: [
-        {
-          id: 1,
-          isRead: false,
-          type: 'default',
-          value: 'New course available',
-        },
-        {
-          id: 2,
-          isRead: false,
-          type: 'urgent',
-          value: 'New resume available',
-        },
-        {
-          id: 3,
-          isRead: false,
-          type: 'urgent',
-          value: 'New data available',
-        },
-      ],
-    };
+    expect(state).toHaveProperty('filter', 'URGENT');
 
-    const state = notificationReducer(initialState, action);
-    expect(state).toEqual(expectedData);
+    state = notificationReducer(state, {
+      type: SET_TYPE_FILTER,
+      filter: NotificationTypeFilters.DEFAULT
+    });
+
+    expect(state).toHaveProperty('filter', 'DEFAULT');
   });
 });

@@ -1,43 +1,44 @@
 import React from 'react';
-import { shallow } from 'enzyme';
-import BodySectionWithMarginBottom from './BodySectionWithMarginBottom';
+import { shallow, mount } from 'enzyme';
+import '@testing-library/react';
+import '@testing-library/jest-dom';
 import { StyleSheetTestUtils } from 'aphrodite';
 
-describe('<BodySectionWithMarginBottom />', () => {
-  beforeAll(() => {
+import BodySectionWithMarginBottom from './BodySectionWithMarginBottom';
+import BodySection from './BodySection';
+
+describe('BodySectionWithMarginBottom', () => {
+  beforeEach(() => {
     StyleSheetTestUtils.suppressStyleInjection();
   });
-  afterAll(() => {
+
+  afterEach(() => {
     StyleSheetTestUtils.clearBufferAndResumeStyleInjection();
   });
 
-  it('render without crashing', () => {
-    const wrapper = shallow(<BodySectionWithMarginBottom />);
-    expect(wrapper.exists());
-  });
-
-  it('component and props', () => {
-    const wrapper = shallow(
-      <BodySectionWithMarginBottom title='test title'>
-        <p>test children node</p>
+  test('should properly render children', () => {
+    const wrapper = mount(
+      <BodySectionWithMarginBottom title='heading'>
+        <p>paragraph 0</p>
+        <p>paragraph 1</p>
       </BodySectionWithMarginBottom>
     );
-    expect(wrapper.exists());
-    const div = wrapper.find('.bodySectionWithMargin').first();
-    const BodySection = wrapper.find('BodySection');
-    const internalBody = BodySection.dive();
-    const h2 = internalBody.find('h2');
-    const p = internalBody.find('p');
-    expect(div.exists());
-    expect(BodySection.exists());
-    expect(internalBody.exists());
-    expect(h2.exists());
-    expect(p.exists());
-    expect(BodySection).toHaveLength(1);
-    expect(BodySection.props().title).toEqual('test title');
-    expect(h2).toHaveLength(1);
-    expect(h2.text()).toEqual('test title');
-    expect(p).toHaveLength(1);
-    expect(p.text()).toEqual('test children node');
+    const bodySection = wrapper.find(BodySection);
+    const heading = bodySection.find('h2');
+    const p = bodySection.find('p');
+
+    expect(heading.length).toBe(1);
+    expect(heading.text()).toBe('heading');
+
+    expect(p.length).toBe(2);
+    expect(p.at(0).text()).toBe('paragraph 0');
+    expect(p.at(1).text()).toBe('paragraph 1');
+  });
+
+  test('should have correct style applied', () => {
+    const wrapper = mount(<BodySectionWithMarginBottom />);
+    const div = wrapper.find('div');
+
+    expect(div.at(0).debug().includes('className="margin_')).toBe(true);
   });
 });

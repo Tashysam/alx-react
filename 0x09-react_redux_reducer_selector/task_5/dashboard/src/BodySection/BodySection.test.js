@@ -1,37 +1,24 @@
 import React from 'react';
 import { shallow } from 'enzyme';
+
 import BodySection from './BodySection';
-import { StyleSheetTestUtils } from 'aphrodite';
 
-describe('<BodySection />', () => {
-  beforeAll(() => {
-    StyleSheetTestUtils.suppressStyleInjection();
-  });
-  afterAll(() => {
-    StyleSheetTestUtils.clearBufferAndResumeStyleInjection();
-  });
-
-  it('render without crashing', () => {
-    const wrapper = shallow(<BodySection />);
-    expect(wrapper.exists());
-  });
-
-  it('with children and heading', () => {
+describe('BodySection', () => {
+  test('should properly render children', () => {
     const wrapper = shallow(
-      <BodySection title='test title'>
-        <p>test children node</p>
+      <BodySection title='heading'>
+        <p>paragraph 0</p>
+        <p>paragraph 1</p>
       </BodySection>
     );
-    expect(wrapper.exists());
-    const div = wrapper.find('.bodySection').first();
-    const h2 = wrapper.find('h2');
+    const heading = wrapper.find('h2');
     const p = wrapper.find('p');
-    expect(div.exists());
-    expect(h2.exists());
-    expect(p.exists());
-    expect(h2).toHaveLength(1);
-    expect(h2.text()).toEqual('test title');
-    expect(p).toHaveLength(1);
-    expect(p.text()).toEqual('test children node');
+
+    expect(heading.length).toBe(1);
+    expect(heading.text()).toBe('heading');
+
+    expect(p.length).toBe(2);
+    expect(p.at(0).text()).toBe('paragraph 0');
+    expect(p.at(1).text()).toBe('paragraph 1');
   });
 });

@@ -1,22 +1,67 @@
-import uiReducer, { initialState } from './uiReducer';
-import { DISPLAY_NOTIFICATION_DRAWER } from '../actions/uiActionTypes';
+import uiReducer from './uiReducer';
 
-describe('reducer', function () {
-  it('initial state', function () {
-    const state = uiReducer(undefined, {});
+import { LOGIN, LOGIN_SUCCESS, LOGIN_FAILURE, LOGOUT, DISPLAY_NOTIFICATION_DRAWER, HIDE_NOTIFICATION_DRAWER } from '../actions/uiActionTypes';
+
+describe('uiReducer', () => {
+  const initialState = {
+    isNotificationDrawerVisible: false,
+    isUserLoggedIn: false,
+    user: {}
+  };
+
+  test('state does not change when no action is passed', () => {
+    const state = uiReducer(initialState);
+
     expect(state).toEqual(initialState);
   });
 
-  it('SELECT_COURSE', function () {
-    const state = uiReducer(undefined, { type: 'SELECT_COURSE' });
+  test('state does not change when unrelated action is passed', () => {
+    const state = uiReducer(initialState, { action: 'SELECT_COURSE' });
+
     expect(state).toEqual(initialState);
   });
 
-  it('DISPLAY_NOTIFICATION_DRAWER', function () {
-    const state = uiReducer(undefined, { type: DISPLAY_NOTIFICATION_DRAWER });
+  test('state changes as expected when DISPLAY_NOTIFICATION_DRAWER is passed', () => {
+    const state = uiReducer(initialState, {
+      type: DISPLAY_NOTIFICATION_DRAWER
+    });
+
     expect(state).toEqual({
       ...initialState,
-      isNotificationDrawerVisible: true,
+      isNotificationDrawerVisible: true
     });
+  });
+
+  test('state changes as expected when HIDE_NOTIFICATION_DRAWER is passed', () => {
+    const state = uiReducer(
+      { ...initialState, isNotificationDrawerVisible: true },
+      { type: HIDE_NOTIFICATION_DRAWER }
+    );
+
+    expect(state).toEqual({
+      ...initialState,
+      isNotificationDrawerVisible: false
+    });
+  });
+
+  test('state changes as expected when LOGIN_SUCCESS is passed', () => {
+    const state = uiReducer(initialState, { type: LOGIN_SUCCESS });
+
+    expect(state).toEqual({ ...initialState, isUserLoggedIn: true });
+  });
+
+  test('state changes as expected when LOGIN_FAILURE is passed', () => {
+    const state = uiReducer(initialState, { type: LOGIN_FAILURE });
+
+    expect(state).toEqual({ ...initialState, isUserLoggedIn: false });
+  });
+
+  test('state changes as expected when LOGOUT is passed', () => {
+    const state = uiReducer(
+      { ...initialState, isUserLoggedIn: true },
+      { type: LOGOUT }
+    );
+
+    expect(state).toEqual({ ...initialState, isUserLoggedIn: false });
   });
 });

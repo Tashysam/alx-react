@@ -1,109 +1,138 @@
-import React, { Component } from 'react';
+import React, { Fragment, Component } from 'react';
 import { StyleSheet, css } from 'aphrodite';
+import PropTypes from 'prop-types';
 
 class Login extends Component {
   constructor(props) {
     super(props);
+
     this.state = {
       email: '',
       password: '',
-      enableSubmit: false,
+      enableSubmit: false
     };
+
     this.handleLoginSubmit = this.handleLoginSubmit.bind(this);
     this.handleChangeEmail = this.handleChangeEmail.bind(this);
     this.handleChangePassword = this.handleChangePassword.bind(this);
   }
 
-  handleLoginSubmit(e) {
-    e.preventDefault();
+  handleLoginSubmit(event) {
     const { email, password } = this.state;
+
     this.props.logIn(email, password);
+
+    event.preventDefault();
   }
 
-  handleChangeEmail(e) {
-    const { value } = e.target;
-    const { password } = this.state;
+  handleChangeEmail(event) {
+    this.setState({ ...this.state, email: event.target.value }, () => {
+      const { email, password } = this.state;
 
-    if (value !== '' && password !== '') this.setState({ enableSubmit: true });
-    else this.setState({ enableSubmit: false });
-
-    this.setState({ email: e.target.value });
+      if (email !== '' && password !== '')
+        this.setState({ ...this.state, enableSubmit: true });
+    });
   }
 
-  handleChangePassword(e) {
-    const { value } = e.target;
-    const { email } = this.state;
+  handleChangePassword(event) {
+    this.setState({ ...this.state, password: event.target.value }, () => {
+      const { email, password } = this.state;
 
-    if (email !== '' && value !== '') this.setState({ enableSubmit: true });
-    else this.setState({ enableSubmit: false });
-
-    this.setState({ password: e.target.value });
+      if (email !== '' && password !== '')
+        this.setState({ ...this.state, enableSubmit: true });
+    });
   }
 
   render() {
+    const { email, password, enableSubmit } = this.state;
+
     return (
-      <main role='main' className={css(styles.login)}>
-        <p>Login to access the full dashboard</p>
-        <form action='' onSubmit={this.handleLoginSubmit}>
-          <label htmlFor='email'>Email:</label>
-          <input
-            type='email'
-            id='email'
-            name='email'
-            className={css(styles.inp)}
-            value={this.state.email}
-            onChange={this.handleChangeEmail}
-          />
-          <label htmlFor='password'>Password:</label>
-          <input
-            type='password'
-            id='password'
-            name='password'
-            className={css(styles.inp)}
-            value={this.state.password}
-            onChange={this.handleChangePassword}
-          />
-          <button
-            type='submit'
-            className={css(styles.btn)}
-            disabled={!this.state.enableSubmit}
-          >
-            OK
-          </button>
-        </form>
-      </main>
+      <Fragment>
+        <p>Log in to access the full dashboard</p>
+        <div>
+          <form className={css(styles.form)} onSubmit={this.handleLoginSubmit}>
+            <div className={css(styles['input-group'])}>
+              <label
+                htmlFor='email'
+                className={css(styles['email-label'], styles.label)}
+              >
+                Email:
+              </label>
+              <input
+                type='email'
+                name='email'
+                id='email'
+                value={email}
+                onChange={this.handleChangeEmail}
+              />
+            </div>
+
+            <div className={css(styles['input-group'])}>
+              <label htmlFor='password' className={css(styles.label)}>
+                Password:
+              </label>
+              <input
+                type='password'
+                name='password'
+                id='password'
+                value={password}
+                onChange={this.handleChangePassword}
+              />
+            </div>
+
+            <input
+              type='submit'
+              className={css(styles.button)}
+              disabled={!enableSubmit}
+              data-testid='submit'
+            />
+          </form>
+        </div>
+      </Fragment>
     );
   }
 }
-const screenSize = {
-  small: '@media screen and (max-width: 900px)',
-};
+
+Login.displayName = 'Login';
 
 const styles = StyleSheet.create({
-  login: {
-    padding: '16px 24px',
-    [screenSize.small]: {
-      width: '90%',
-      padding: 0,
+  label: {
+    '@media (min-width: 901px)': {
+      padding: '1rem'
     },
+    '@media (max-width: 900px)': {
+      marginRight: '0.5rem'
+    }
   },
-  inp: {
-    margin: '4px',
-    [screenSize.small]: {
-      display: 'block',
-      border: 'none',
-      margin: 0,
+  'email-label': {
+    padding: '0'
+  },
+  button: {
+    '@media (min-width: 901px)': {
+      margin: '0 2rem'
     },
+    '@media (max-width: 900px)': {
+      margin: '0.25rem 0'
+    }
   },
-  btn: {
-    margin: '4px',
-    cursor: 'pointer',
-    [screenSize.small]: {
-      width: '32px',
-      display: 'block',
-      margin: 0,
-    },
+  form: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    alignContent: 'flex-start'
   },
+  'input-group': {
+    '@media (max-width: 900px)': {
+      margin: '0.25rem 0'
+    }
+  }
 });
+
+Login.propTypes = {
+  logIn: PropTypes.func
+};
+
+Login.defaultProps = {
+  logIn: () => {}
+};
 
 export default Login;

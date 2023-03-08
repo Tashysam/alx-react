@@ -1,48 +1,63 @@
 import React from 'react';
 import { shallow } from 'enzyme';
-import Login from './Login';
 import { StyleSheetTestUtils } from 'aphrodite';
 
-describe('<Login />', () => {
-  beforeAll(() => {
+import Login from './Login';
+
+describe('Login', () => {
+  beforeEach(() => {
     StyleSheetTestUtils.suppressStyleInjection();
   });
-  afterAll(() => {
+
+  afterEach(() => {
     StyleSheetTestUtils.clearBufferAndResumeStyleInjection();
   });
 
-  const wrapper = shallow(<Login />);
+  test('renders without crashing', () => {
+    const wrapper = shallow(<Login />);
 
-  it('render without crashing', () => {
-    expect(wrapper.exists());
+    expect(wrapper.exists()).toBe(true);
   });
 
-  it('labels', () => {
-    expect(wrapper.find('form label')).toHaveLength(2);
+  test('renders three input tags', () => {
+    const wrapper = shallow(<Login />);
+
+    const inputs = wrapper.find('input');
+    const labels = wrapper.find('label');
+
+    expect(inputs.length).toBe(3);
+    expect(labels.length).toBe(2);
   });
 
-  it('inputs', () => {
-    expect(wrapper.find('form input')).toHaveLength(2);
+  test('submit is disabled by default', () => {
+    const wrapper = shallow(<Login />);
+    const submit = wrapper.find('[data-testid="submit"]');
+
+    expect(submit.length).toBe(1);
+    expect(submit.props()).toHaveProperty('disabled', true);
   });
 
-  it('button', () => {
-    const button = wrapper.find("form button[type='submit']");
-    expect(button).toHaveLength(1);
-    expect(button.prop('disabled')).toEqual(true);
-  });
+  test('submit is enabled when inputs are not empty', () => {
+    const wrapper = shallow(<Login />);
+    const email = wrapper.find('input#email');
+    const password = wrapper.find('input#password');
+    let submit = wrapper.find('[data-testid="submit"]');
 
-  it('form working', () => {
-    const email = wrapper.find('#email');
-    const password = wrapper.find('#password');
-    email.simulate('change', {
-      target: { name: 'email', value: 'account@domain.ext' },
-    });
-    let submit = wrapper.find("form button[type='submit']");
-    expect(submit.prop('disabled')).toEqual(true);
-    password.simulate('change', {
-      target: { name: 'password', value: 'qwerty' },
-    });
-    submit = wrapper.find("form button[type='submit']");
-    expect(submit.prop('disabled')).toEqual(false);
+    expect(email.length).toBe(1);
+    expect(password.length).toBe(1);
+    expect(submit.length).toBe(1);
+
+    expect(wrapper.state()).toHaveProperty('enableSubmit', false);
+    expect(submit.props()).toHaveProperty('disabled', true);
+
+    email.simulate('change', { target: { value: 'juno@domain.tld' } });
+    expect(wrapper.state()).toHaveProperty('enableSubmit', false);
+    submit = wrapper.find('[data-testid="submit"]');
+    expect(submit.props()).toHaveProperty('disabled', true);
+
+    password.simulate('change', { target: { value: 'dime' } });
+    expect(wrapper.state()).toHaveProperty('enableSubmit', true);
+    submit = wrapper.find('[data-testid="submit"]');
+    expect(submit.props()).toHaveProperty('disabled', false);
   });
 });

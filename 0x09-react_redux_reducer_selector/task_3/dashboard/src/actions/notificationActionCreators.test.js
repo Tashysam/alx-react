@@ -1,32 +1,33 @@
 import {
-  MARK_AS_READ,
-  SET_TYPE_FILTER,
-  NotificationTypeFilters,
-} from './notificationActionTypes';
-
-import {
-  markAsAread,
-  setNotificationFilter,
+  markAsRead,
+  setNotificationFilter
 } from './notificationActionCreators';
 
-describe('action creators', () => {
-  it('markAsRead', () => {
-    const data = {
-      type: MARK_AS_READ,
-      index: 1,
-    };
-    const result = markAsAread(1);
+import {
+  MARK_AS_READ,
+  SET_TYPE_FILTER,
+  NotificationTypeFilters
+} from './notificationActionTypes';
 
-    expect(result).toEqual(data);
+describe('notification action creators return expected values', () => {
+  test('markAsRead', () => {
+    const ret = markAsRead(1);
+
+    expect(ret).toHaveProperty('type', MARK_AS_READ);
+    expect(ret).toHaveProperty('index', 1);
   });
 
-  it('setNotificationFilter', () => {
-    const data = {
-      type: SET_TYPE_FILTER,
-      filter: 'DEFAULT',
-    };
-    const result = setNotificationFilter(NotificationTypeFilters.DEFAULT);
+  test('setNotificationFilter', () => {
+    const { DEFAULT, URGENT } = NotificationTypeFilters;
 
-    expect(result).toEqual(data);
+    let ret = setNotificationFilter(DEFAULT);
+
+    expect(ret).toHaveProperty('type', SET_TYPE_FILTER);
+    expect(ret).toHaveProperty('filter', DEFAULT);
+
+    ret = setNotificationFilter(URGENT);
+
+    expect(ret).toHaveProperty('type', SET_TYPE_FILTER);
+    expect(ret).toHaveProperty('filter', URGENT);
   });
 });

@@ -1,97 +1,73 @@
 import React from 'react';
 import { shallow } from 'enzyme';
-import CourseList from './CourseList';
 import { StyleSheetTestUtils } from 'aphrodite';
 
-describe('<CourseList />', () => {
-  beforeAll(() => {
-    StyleSheetTestUtils.suppressStyleInjection();
-  });
-  afterAll(() => {
-    StyleSheetTestUtils.clearBufferAndResumeStyleInjection();
-  });
+import CourseList from './CourseList';
+import CourseListRow from './CourseListRow';
 
-  const wrapper = shallow(<CourseList />);
-  it('renders without crashing', () => {
-    expect(wrapper.exists());
-  });
-
-  it('renders rows', () => {
-    const row = wrapper.find('CourseListRow');
-    expect(row.exists());
-    expect(row.at(0).prop('textFirstCell')).toEqual('Available courses');
-    expect(row.at(0).prop('isHeader')).toEqual(true);
-    expect(row.at(1).prop('textFirstCell')).toEqual('Course name');
-    expect(row.at(1).prop('textSecondCell')).toEqual('Credit');
-    expect(row.at(1).prop('isHeader')).toEqual(true);
-    expect(row.at(2).prop('isHeader')).toEqual(false);
-  });
-});
-
-describe('listCourses with values', () => {
-  beforeAll(() => {
-    StyleSheetTestUtils.suppressStyleInjection();
-  });
-  afterAll(() => {
-    StyleSheetTestUtils.clearBufferAndResumeStyleInjection();
-  });
-  let listCourses = undefined;
+describe('CourseList', () => {
   beforeEach(() => {
-    listCourses = [
-      { id: 1, name: 'ES6', credit: 60 },
-      { id: 2, name: 'Webpack', credit: 20 },
-      { id: 3, name: 'React', credit: 40 },
+    StyleSheetTestUtils.suppressStyleInjection();
+  });
+
+  afterEach(() => {
+    StyleSheetTestUtils.clearBufferAndResumeStyleInjection();
+  });
+
+  test('renders without crashing', () => {
+    const wrapper = shallow(<CourseList />);
+
+    expect(wrapper.exists()).toBe(true);
+  });
+
+  describe('listCourses is empty', () => {
+    test('renders correctly if not specified', () => {
+      const wrapper = shallow(<CourseList />);
+
+      const rows = wrapper.find(CourseListRow);
+      expect(rows.length).toBe(2);
+
+      const td = wrapper.find('tbody tr td');
+      expect(td.length).toBe(1);
+      expect(td.props()).toHaveProperty('colSpan', '2');
+      expect(td.text()).toBe('No course available yet');
+    });
+
+    test('renders correctly if empty array', () => {
+      const wrapper = shallow(<CourseList listCourses={[]} />);
+
+      const rows = wrapper.find(CourseListRow);
+      expect(rows.length).toBe(2);
+
+      const td = wrapper.find('tbody tr td');
+      expect(td.length).toBe(1);
+      expect(td.props()).toHaveProperty('colSpan', '2');
+      expect(td.text()).toBe('No course available yet');
+    });
+  });
+
+  describe('listCourses is not empty', () => {
+    const courses = [
+      { id: 0, name: 'HTML and CSS', credit: 20 },
+      { id: 1, name: 'Javascript', credit: 40 }
     ];
-  });
 
-  it('rows', () => {
-    const wrapper = shallow(<CourseList listCourses={listCourses} />);
-    const row = wrapper.find('CourseListRow');
-    expect(wrapper.exists());
-    expect(row.exists());
-    expect(row).toHaveLength(5);
-    expect(row.at(0).prop('textFirstCell')).toEqual('Available courses');
-    expect(row.at(0).prop('isHeader')).toEqual(true);
-    expect(row.at(1).prop('textFirstCell')).toEqual('Course name');
-    expect(row.at(1).prop('textSecondCell')).toEqual('Credit');
-    expect(row.at(1).prop('isHeader')).toEqual(true);
-    expect(row.at(2).prop('textFirstCell')).toEqual('ES6');
-    expect(row.at(2).prop('textSecondCell')).toEqual(60);
-    expect(row.at(2).prop('isHeader')).toEqual(false);
-    expect(row.at(3).prop('textFirstCell')).toEqual('Webpack');
-    expect(row.at(3).prop('textSecondCell')).toEqual(20);
-    expect(row.at(3).prop('isHeader')).toEqual(false);
-    expect(row.at(4).prop('textFirstCell')).toEqual('React');
-    expect(row.at(4).prop('textSecondCell')).toEqual(40);
-    expect(row.at(4).prop('isHeader')).toEqual(false);
-  });
-});
+    const wrapper = shallow(<CourseList listCourses={courses} />);
+    const rows = wrapper.find(CourseListRow);
 
-describe('listCourses without values', () => {
-  beforeAll(() => {
-    StyleSheetTestUtils.suppressStyleInjection();
-  });
-  afterAll(() => {
-    StyleSheetTestUtils.clearBufferAndResumeStyleInjection();
-  });
-  let listCourses = undefined;
-  beforeEach(() => {
-    listCourses = [];
-  });
+    test('renders correct amount of rows', () => {
+      expect(rows.length).toBe(4);
+    });
 
-  it('empty', () => {
-    const wrapper = shallow(<CourseList listCourses={listCourses} />);
-    const row = wrapper.find('CourseListRow');
-    expect(wrapper.exists());
-    expect(row.exists());
-    expect(row).toHaveLength(3);
-    expect(row.at(0).prop('textFirstCell')).toEqual('Available courses');
-    expect(row.at(0).prop('isHeader')).toEqual(true);
-    expect(row.at(1).prop('textFirstCell')).toEqual('Course name');
-    expect(row.at(1).prop('textSecondCell')).toEqual('Credit');
-    expect(row.at(1).prop('isHeader')).toEqual(true);
-    expect(row.at(2).prop('textFirstCell')).toEqual('No course available yet');
-    expect(row.at(2).prop('textSecondCell')).toEqual(null);
-    expect(row.at(2).prop('isHeader')).toEqual(false);
+    test('renders rows with correct props', () => {
+      expect(rows.at(2).props()).toHaveProperty(
+        'textFirstCell',
+        'HTML and CSS'
+      );
+      expect(rows.at(2).props()).toHaveProperty('textSecondCell', 20);
+
+      expect(rows.at(3).props()).toHaveProperty('textFirstCell', 'Javascript');
+      expect(rows.at(3).props()).toHaveProperty('textSecondCell', 40);
+    });
   });
 });

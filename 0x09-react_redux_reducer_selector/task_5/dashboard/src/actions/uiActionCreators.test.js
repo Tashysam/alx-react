@@ -1,44 +1,41 @@
 import {
-  LOGIN,
-  LOGOUT,
-  DISPLAY_NOTIFICATION_DRAWER,
-  HIDE_NOTIFICATION_DRAWER,
-} from './uiActionTypes';
-
-import {
   login,
   logout,
   displayNotificationDrawer,
-  hideNotificationDrawer,
+  hideNotificationDrawer
 } from './uiActionCreators';
 
-describe('action creators', () => {
-  it('login', () => {
-    const user = { email: 'account@domain.extension', password: 123456789 };
-    const data = { type: LOGIN, user };
-    const result = login(user.email, user.password);
+import {
+  LOGIN,
+  LOGOUT,
+  DISPLAY_NOTIFICATION_DRAWER,
+  HIDE_NOTIFICATION_DRAWER
+} from './uiActionTypes';
 
-    expect(result).toEqual(data);
+describe('ui action creators return expected values', () => {
+  test('login', () => {
+    const ret = login('juno@domain.tld', 'gecgecgec');
+
+    expect(ret).toHaveProperty('type', LOGIN);
+    expect(ret.user).toHaveProperty('email', 'juno@domain.tld');
+    expect(ret.user).toHaveProperty('password', 'gecgecgec');
   });
 
-  it('logout', () => {
-    const data = { type: LOGOUT };
-    const result = logout();
+  test('logout', () => {
+    const ret = logout();
 
-    expect(result).toEqual(data);
+    expect(ret).toHaveProperty('type', LOGOUT);
   });
 
-  it('displayNotificationDrawer', () => {
-    const data = { type: DISPLAY_NOTIFICATION_DRAWER };
-    const result = displayNotificationDrawer();
+  test('displayNotificationDrawer', () => {
+    const ret = displayNotificationDrawer();
 
-    expect(result).toEqual(data);
+    expect(ret).toHaveProperty('type', DISPLAY_NOTIFICATION_DRAWER);
   });
 
-  it('hideNotificationDrawer', () => {
-    const data = { type: HIDE_NOTIFICATION_DRAWER };
-    const result = hideNotificationDrawer();
+  test('hideNotificationDrawer', () => {
+    const ret = hideNotificationDrawer();
 
-    expect(result).toEqual(data);
+    expect(ret).toHaveProperty('type', HIDE_NOTIFICATION_DRAWER);
   });
 });
